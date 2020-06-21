@@ -55,7 +55,7 @@ all_df$user_url <- all_df$user_url %>% as.character()
 
 all_user <- NULL
 
-for(i in 5946:length(all_df$user_url)){
+for(i in 6494:length(all_df$user_url)){
   remDr$navigate(all_df$user_url[i])
   
   temp <- remDr$getPageSource()[[1]] %>% read_html()
