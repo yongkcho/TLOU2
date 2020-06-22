@@ -55,7 +55,7 @@ all_df$user_url <- all_df$user_url %>% as.character()
 
 all_user <- NULL
 
-for(i in 6494:length(all_df$user_url)){
+for(i in 11285:length(all_df$user_url)){
   remDr$navigate(all_df$user_url[i])
   
   temp <- remDr$getPageSource()[[1]] %>% read_html()
@@ -79,6 +79,6 @@ for(i in 6494:length(all_df$user_url)){
   if(i %% 100 == 0){message(round(i / length(all_df$user_url), digits = 4) * 100, " % is done.")}
   Sys.sleep(1)
 }
-
+  
 
 
