@@ -79,6 +79,7 @@ for(i in 11285:length(all_df$user_url)){
   if(i %% 100 == 0){message(round(i / length(all_df$user_url), digits = 4) * 100, " % is done.")}
   Sys.sleep(1)
 }
-  
 
+all_user <- all_user[!duplicated(all_user),]
+write.csv(all_user, "all_user_data.csv")
 
