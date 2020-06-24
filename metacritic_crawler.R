@@ -28,7 +28,7 @@ base_url <- "https://www.metacritic.com/game/playstation-4/the-last-of-us-part-i
 add_df <- NULL
 error_chk <- "There are no user reviews yet - Be first to review The Last of Us Part II."
 
-for(i in 301:400){ #number started from '0'
+for(i in 1:400){ #number started from '0'
   review_url <- paste0(base_url, 393-i)
   remDr$navigate(review_url)
   
@@ -94,11 +94,19 @@ all_df$user_url <- all_df$user_url %>% as.character()
 #user_bak <- all_user
 new_data <- add_df[add_df$user %!in% all_user$user,] 
 new_user <- NULL
+error_chk <- "Error 503 Service Unavailable"
 
-for(i in 1:length(new_data$user_url)){
+for(i in 111:length(new_data$user_url)){
   remDr$navigate(new_data$user_url[i])
   
   temp <- remDr$getPageSource()[[1]] %>% read_html()
+  
+  is_error <- temp %>% html_nodes("body > h1") %>% html_text()
+  if(length(is_error) == 0){is_error <- ""}
+  if(is_error == error_chk){
+    remDr$refresh()
+  }
+  
   rating_num <- temp %>% html_nodes(".total_summary_ratings.mr20") %>% html_nodes(".data") %>% html_text() %>% as.integer()
   review_num <- temp %>% html_nodes(".total_summary_reviews") %>% html_nodes(".data") %>% html_text() %>% as.integer()
   dist <- temp %>% html_nodes(".count_wrap") %>% html_nodes(".count") %>% html_text() %>% as.integer()
@@ -117,7 +125,7 @@ for(i in 1:length(new_data$user_url)){
   new_user <- rbind(new_user, temp_df)
   
   if(i %% 100 == 0){message(round(i / length(all_df$user_url), digits = 4) * 100, " % is done.")}
-  Sys.sleep(1)
+  Sys.sleep(3.5)
 }
 
 # all_user <- all_user[!duplicated(all_user),]

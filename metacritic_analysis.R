@@ -11,10 +11,22 @@ list.files(wkdir)
 library(dplyr)
 library(stringr)
 library(ggplot2)
+library(igraph)
+library(qgraph)
+
+library(tm)
+library(tidytext)
+library(tidyverse)
+library(topicmodels)
+library(lda)
+library(Rmpfr)
+library(LDAvis)
+library(wordcloud)
+
 
 # import dataset
 user_data <- read.csv("all_user_data.csv")
-review_data <- read.csv("TLOU_review_200620.csv")
+review_data <- read.csv("TLOU_review_200624.csv")
 
 # define functions
 '%!in%' <- function(x, y)!('%in%'(x, y))
@@ -58,7 +70,20 @@ real_avg_score <- aggregate(score ~ created_date, data = real_review, mean)
 
 
 # Q2. what is the POS and NEG aspect of the game?
-neg_review <- all_df
+h <- hist(review_data$score, breaks = 10) 
+h
+summary(review_data$score)
 
+neg_review <- review_data[review_data$score < 3.727,] #lower than mean
+pos_review <- review_data[review_data$score >= 3.727,] #higher than mean
 
+neg_corpus <- Corpus(VectorSource(neg_review$review))
+neg_corpus <- tm_map(neg_corpus, removePunctuation)
+neg_corpus <- tm_map(neg_corpus, removeNumbers)
+neg_corpus <- tm_map(neg_corpus, tolower)
 
+neg_tdm <- TermDocumentMatrix(neg_corpus, control=list(wordLengths=c(4,Inf)))
+neg_tdm <- as.data.frame(as.matrix(neg_tdm))
+
+hash_words <- sort(rowSums(hash_tdm), decreasing=TRUE)  
+hash_words <- data.frame(word = names(hash_words), freq = hash_words)
