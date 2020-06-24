@@ -1,7 +1,7 @@
 #### Last of Us Review Analysis ####
 
 # set working dir
-wkdir <- "C:/Users/ykun9/TLOU2"
+wkdir <- "C:/Users/user/TLOU2"
 
 setwd(wkdir)
 
@@ -50,4 +50,15 @@ h2$counts <- h2$counts / sum(h2$counts)
 # let's plot agian
 plot(h1, col = rgb(0, 1, 1, 1/4), xlim = c(0,10))
 plot(h2, col = rgb(1, 0, 0, 1/4), xlim = c(0,10), add = T)
+
+# how about time series comparison?
+all_avg_score <- aggregate(score ~ created_date, data = all_df, mean)
+fake_avg_score <- aggregate(score ~ created_date, data = fake_review, mean)
+real_avg_score <- aggregate(score ~ created_date, data = real_review, mean)
+
+
+# Q2. what is the POS and NEG aspect of the game?
+neg_review <- all_df
+
+
 
