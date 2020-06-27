@@ -50,7 +50,7 @@ summary(real_review$score)
 hist(real_review$score)
 h2 <- hist(real_review$score, breaks = 10)
 table(real_review$score)
-
+8
 # overlap 2 histograms in one plot to compare
 plot(h1, col = rgb(0, 1, 1, 1/4), xlim = c(0,10))
 plot(h2, col = rgb(1, 0, 0, 1/4), xlim = c(0,10), add = T)
@@ -76,7 +76,7 @@ avg_score_plot <- rbind(all_avg_score, fake_avg_score, real_avg_score)
 ggplot(avg_score_plot, aes(x = created_date, y = score, group = type)) +
   geom_line(aes(color = type)) +
   geom_point(aes(color = type)) +
-  
+  theme_classic()
 
 # Q2. what is the POS and NEG aspect of the game?
 h <- hist(review_data$score, breaks = 10) 
@@ -161,4 +161,8 @@ ggplot(comparison_freq, aes(x = word, y = pos, fill = type)) +
   theme(plot.title = element_text(hjust = .5), 
         axis.ticks = element_blank())   # Centre plot title
 
-
+# network analysis
+neg_tfIdf <- TermDocumentMatrix(neg_corpus,
+                                control = list(wordLengths = c(3,30), weighting = weightTfIdf))
+neg_tfIdf_df <- as.data.frame(as.matrix(neg_tfIdf))
+neg_tfIdfResult <- sort(rowSums(neg_tfIdf_df), decreasing=TRUE)  
