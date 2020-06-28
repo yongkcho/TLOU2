@@ -89,14 +89,17 @@ write.csv(critic_df, "critic_data.csv")
 
 #### Crawl User Data with Selenium ####
 
-all_df$user_url <- all_df$user_url %>% as.character()
+review_data$user_url <- review_data$user_url %>% as.character()
 
 #user_bak <- all_user
-new_data <- add_df[add_df$user %!in% all_user$user,] 
+new_data <- review_data[review_data$user %!in% user_data$user,] 
 new_user <- NULL
 error_chk <- "Error 503 Service Unavailable"
+delete_chk <- "User not found"
+loading_chk <- "페이지가 작동하지 않습니다."
+delete_user <- c()
 
-for(i in 111:length(new_data$user_url)){
+for(i in 2155:length(new_data$user_url)){
   remDr$navigate(new_data$user_url[i])
   
   temp <- remDr$getPageSource()[[1]] %>% read_html()
@@ -105,6 +108,20 @@ for(i in 111:length(new_data$user_url)){
   if(length(is_error) == 0){is_error <- ""}
   if(is_error == error_chk){
     remDr$refresh()
+  }
+  is_delete <- temp %>% html_nodes(".name") %>% html_text()
+  if(length(is_delete) == 0){is_delete <- ""}
+  if(is_delete == delete_chk){
+    delete_user <- c(delete_user, new_data$user)
+    next
+  }
+  
+  is_loading <- temp %>% html_nodes(xpath = '//*[@id="main-message"]/h1/span') %>% html_text()
+  if(length(is_loading) == 0){is_loading <- ""}
+  if(is_loading == loading_chk){
+    Sys.sleep(1)
+    remDr$refresh()
+    temp <- remDr$getPageSource()[[1]] %>% read_html()
   }
   
   rating_num <- temp %>% html_nodes(".total_summary_ratings.mr20") %>% html_nodes(".data") %>% html_text() %>% as.integer()
@@ -125,7 +142,7 @@ for(i in 111:length(new_data$user_url)){
   new_user <- rbind(new_user, temp_df)
   
   if(i %% 100 == 0){message(round(i / length(all_df$user_url), digits = 4) * 100, " % is done.")}
-  Sys.sleep(3.5)
+  Sys.sleep(1.5)
 }
 
 # all_user <- all_user[!duplicated(all_user),]
