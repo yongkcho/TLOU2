@@ -1,7 +1,8 @@
 #### Last of Us Review Analysis ####
 
 # set working dir
-wkdir <- "/Users/wang/TLOU2"
+#wkdir <- "/Users/wang/TLOU2" #mac OS
+wkdir <- "C:/Users/user/TLOU2" #windows
 setwd(wkdir)
 
 list.files(wkdir)
@@ -13,7 +14,7 @@ library(stringr)
 library(ggthemes)
 library(ggplot2)
 library(igraph)
-#library(qgraph)
+library(qgraph)
 
 library(tm)
 library(tidytext)
@@ -23,6 +24,7 @@ library(lda)
 library(Rmpfr)
 library(LDAvis)
 library(wordcloud)
+library(slam)
 
 # import dataset
 user_data <- read.csv("all_user_data.csv")
@@ -162,7 +164,12 @@ ggplot(comparison_freq, aes(x = word, y = pos, fill = type)) +
         axis.ticks = element_blank())   # Centre plot title
 
 # network analysis
+memory.size(max = TRUE)    # OS에서 얻은 최대 메모리 크기 = OS로부터 R이 사용 가능한 메모리
+memory.size(max = FALSE)   # 현재 사용중인 메모리 크기
+memory.limit(size = NA)    # 컴퓨터의 최대 메모리 한계치 
+memory.limit(size = 5000000000000) 
+
 neg_tfIdf <- TermDocumentMatrix(neg_corpus,
                                 control = list(wordLengths = c(3,30), weighting = weightTfIdf))
-neg_tfIdf_df <- as.data.frame(as.matrix(neg_tfIdf))
-neg_tfIdfResult <- sort(rowSums(neg_tfIdf_df), decreasing=TRUE)  
+Encoding(neg_tfIdf$dimnames$Terms) = 'UTF-8'
+neg_tfIdfResult <- as.data.frame(row_sums(neg_tfIdf, na.rm=T))

@@ -99,7 +99,7 @@ delete_chk <- "User not found"
 loading_chk <- "페이지가 작동하지 않습니다."
 delete_user <- c()
 
-for(i in 2155:length(new_data$user_url)){
+for(i in 10354:length(new_data$user_url)){
   remDr$navigate(new_data$user_url[i])
   
   temp <- remDr$getPageSource()[[1]] %>% read_html()
@@ -141,7 +141,11 @@ for(i in 2155:length(new_data$user_url)){
   }
   new_user <- rbind(new_user, temp_df)
   
-  if(i %% 100 == 0){message(round(i / length(all_df$user_url), digits = 4) * 100, " % is done.")}
+  if(i %% 100 == 0){
+    message(round(i / length(all_df$user_url), digits = 4) * 100, " % is done.")
+    remDr$close()
+    remDr$open()
+    }
   Sys.sleep(1.5)
 }
 
