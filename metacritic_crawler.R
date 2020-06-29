@@ -99,9 +99,10 @@ delete_chk <- "User not found"
 loading_chk <- "페이지가 작동하지 않습니다."
 delete_user <- c()
 
-for(i in 10354:length(new_data$user_url)){
+remDr$open()
+for(i in 21000:length(new_data$user_url)){
   remDr$navigate(new_data$user_url[i])
-  
+
   temp <- remDr$getPageSource()[[1]] %>% read_html()
   
   is_error <- temp %>% html_nodes("body > h1") %>% html_text()
@@ -112,10 +113,10 @@ for(i in 10354:length(new_data$user_url)){
   is_delete <- temp %>% html_nodes(".name") %>% html_text()
   if(length(is_delete) == 0){is_delete <- ""}
   if(is_delete == delete_chk){
-    delete_user <- c(delete_user, new_data$user)
+    delete_user <- c(delete_user, new_data$user[i])
     next
   }
-  
+
   is_loading <- temp %>% html_nodes(xpath = '//*[@id="main-message"]/h1/span') %>% html_text()
   if(length(is_loading) == 0){is_loading <- ""}
   if(is_loading == loading_chk){
@@ -123,7 +124,7 @@ for(i in 10354:length(new_data$user_url)){
     remDr$refresh()
     temp <- remDr$getPageSource()[[1]] %>% read_html()
   }
-  
+
   rating_num <- temp %>% html_nodes(".total_summary_ratings.mr20") %>% html_nodes(".data") %>% html_text() %>% as.integer()
   review_num <- temp %>% html_nodes(".total_summary_reviews") %>% html_nodes(".data") %>% html_text() %>% as.integer()
   dist <- temp %>% html_nodes(".count_wrap") %>% html_nodes(".count") %>% html_text() %>% as.integer()
@@ -133,18 +134,18 @@ for(i in 10354:length(new_data$user_url)){
   avg_score <- temp %>% html_nodes(".summary_data") %>% html_text() %>% str_remove_all("\n") %>% 
     str_remove_all("\t") %>% trimws()
   if(length(dist) == 0){ #review is deleted
-    temp_df <- data.frame(user = all_df$user[i], user_url = all_df$user_url[i], rating_num = rating_num, review_num = review_num,
+    temp_df <- data.frame(user = new_data$user[i], user_url = new_data$user_url[i], rating_num = rating_num, review_num = review_num,
                           pos_dist = 0, mixed_dist = 0, neg_dist = 0, avg_score = "0.0")
   } else { #normal case
-    temp_df <- data.frame(user = all_df$user[i], user_url = all_df$user_url[i], rating_num = rating_num, review_num = review_num,
+    temp_df <- data.frame(user = new_data$user[i], user_url = new_data$user_url[i], rating_num = rating_num, review_num = review_num,
                           pos_dist = pos_dist, mixed_dist = mixed_dist, neg_dist = neg_dist, avg_score = avg_score)
   }
   new_user <- rbind(new_user, temp_df)
   
   if(i %% 100 == 0){
-    message(round(i / length(all_df$user_url), digits = 4) * 100, " % is done.")
     remDr$close()
     remDr$open()
+    message(round(i / length(new_data$user_url), digits = 4) * 100, " % is done.")
     }
   Sys.sleep(1.5)
 }

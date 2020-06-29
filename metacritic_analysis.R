@@ -17,6 +17,8 @@ library(igraph)
 library(qgraph)
 
 library(tm)
+library(openNLP)
+library(openNLPmodels.en)
 library(tidytext)
 library(tidyverse)
 library(topicmodels)
@@ -173,3 +175,5 @@ neg_tfIdf <- TermDocumentMatrix(neg_corpus,
                                 control = list(wordLengths = c(3,30), weighting = weightTfIdf))
 Encoding(neg_tfIdf$dimnames$Terms) = 'UTF-8'
 neg_tfIdfResult <- as.data.frame(row_sums(neg_tfIdf, na.rm=T))
+neg_tfIdfResult <- data.frame(names = rownames(neg_tfIdfResult), tfIdf = neg_tfIdfResult$`row_sums(neg_tfIdf, na.rm = T)`)
+word.order <- order(neg_tfIdfResult$, decreasing=T)
