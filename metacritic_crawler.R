@@ -18,18 +18,18 @@ remDr <- remoteDriver(remoteServerAddr = "localhost",
 remDr$open()
 
 
-base_url <- "https://www.metacritic.com/game/playstation-4/the-last-of-us-part-ii/user-reviews?page="
+base_url <- "https://www.metacritic.com/game/playstation-4/the-last-of-us-part-ii/user-reviews?sort-by=date&num_items=100&page="
 
 # define functions
 '%!in%' <- function(x, y)!('%in%'(x, y))
 
 # make empty dataframe
-#all_df <- NULL
+#bak <- all_df
 add_df <- NULL
 error_chk <- "There are no user reviews yet - Be first to review The Last of Us Part II."
 
-for(i in 1:400){ #number started from '0'
-  review_url <- paste0(base_url, 393-i)
+for(i in 0:400){ #number started from '0'
+  review_url <- paste0(base_url, i)
   remDr$navigate(review_url)
   
   temp <- remDr$getPageSource()[[1]] %>% read_html()
@@ -39,7 +39,18 @@ for(i in 1:400){ #number started from '0'
   if(is_error == error_chk){
     Sys.sleep(1)
     next #page does not contain text
-    }
+  }
+  
+  
+  is_loading <- temp %>% html_nodes(xpath = '//*[@id="main-message"]/h1/span') %>% html_text()
+  if(length(is_loading) == 0){is_loading <- ""}
+  if(is_loading == loading_chk){
+    Sys.sleep(1)
+    remDr$close()
+    remDr$open()
+    remDr$navigate(review_url)
+    temp <- remDr$getPageSource()[[1]] %>% read_html()
+  }
   
   score <- temp %>% html_nodes(".body.product_reviews") %>% html_nodes(".review_grade div") %>% html_text() %>% as.integer()
   created_date <- temp %>% html_nodes(".body.product_reviews") %>% html_nodes(".date") %>% html_text()
@@ -53,17 +64,22 @@ for(i in 1:400){ #number started from '0'
   temp_df <- data.frame(created_date = created_date, user = user, user_url = user_url, score = score,
                         review = review, all_count = all_count, helpful_count = helpful_count, 
                         page_url = review_url)
-  #all_df <- rbind(all_df, temp_df)
+  
+  #if(created_date[100] == "Jun 23, 2020"){break}
+
   add_df <- rbind(add_df, temp_df)
   
   message(i, " th page crawled. ;D")
-  Sys.sleep(1)
+  Sys.sleep(2)
 }
+
+all_df <- read.csv("TLOU_review_200624.csv")
+all_df <- 
 #bak <- all_df
 all_df <- rbind(all_df, add_df)
 all_df <- all_df[!duplicated(all_df),]
 
-write.csv(all_df, "LOU_review_200624.csv")
+write.csv(all_df, "LOU_review_200630.csv")
 
 #### Crawl critic review ####
 
@@ -88,19 +104,21 @@ critic_df <- data.frame(created_date = created_date, user = user, score = score,
 write.csv(critic_df, "critic_data.csv")
 
 #### Crawl User Data with Selenium ####
-
+review_data <- all_df
+review_data <- review_data[!duplicated(review_data),]
 review_data$user_url <- review_data$user_url %>% as.character()
 
 #user_bak <- all_user
-new_data <- review_data[review_data$user %!in% user_data$user,] 
+new_data <- review_data[review_data$user %!in% all_user$user,] 
+nrow(new_data)
 new_user <- NULL
+
 error_chk <- "Error 503 Service Unavailable"
 delete_chk <- "User not found"
 loading_chk <- "페이지가 작동하지 않습니다."
 delete_user <- c()
 
-remDr$open()
-for(i in 21000:length(new_data$user_url)){
+for(i in 1:length(new_data$user_url)){
   remDr$navigate(new_data$user_url[i])
 
   temp <- remDr$getPageSource()[[1]] %>% read_html()
@@ -149,6 +167,6 @@ for(i in 21000:length(new_data$user_url)){
     }
   Sys.sleep(1.5)
 }
-
-# all_user <- all_user[!duplicated(all_user),]
-# write.csv(all_user, "all_user_data.csv")
+all_user <- rbind(all_user,new_user)
+all_user <- all_user[!duplicated(all_user),]
+write.csv(all_user, "all_user_data_200630.csv")
