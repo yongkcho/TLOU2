@@ -118,7 +118,7 @@ delete_chk <- "User not found"
 loading_chk <- "페이지가 작동하지 않습니다."
 delete_user <- c()
 
-for(i in 2405:length(new_data$user_url)){
+for(i in 2947:length(new_data$user_url)){
   remDr$navigate(new_data$user_url[i])
 
   temp <- remDr$getPageSource()[[1]] %>% read_html()
@@ -138,11 +138,16 @@ for(i in 2405:length(new_data$user_url)){
   is_loading <- temp %>% html_nodes(xpath = '//*[@id="main-message"]/h1/span') %>% html_text()
   if(length(is_loading) == 0){is_loading <- ""}
   if(is_loading == loading_chk){
-    Sys.sleep(1)
+    Sys.sleep(3)
     remDr$refresh()
     temp <- remDr$getPageSource()[[1]] %>% read_html()
   }
-
+  if(is_loading == loading_chk){
+    Sys.sleep(3)
+    remDr$refresh()
+    temp <- remDr$getPageSource()[[1]] %>% read_html()
+  }
+  
   rating_num <- temp %>% html_nodes(".total_summary_ratings.mr20") %>% html_nodes(".data") %>% html_text() %>% as.integer()
   review_num <- temp %>% html_nodes(".total_summary_reviews") %>% html_nodes(".data") %>% html_text() %>% as.integer()
   dist <- temp %>% html_nodes(".count_wrap") %>% html_nodes(".count") %>% html_text() %>% as.integer()
