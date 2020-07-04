@@ -118,7 +118,7 @@ delete_chk <- "User not found"
 loading_chk <- "페이지가 작동하지 않습니다."
 delete_user <- c()
 
-for(i in 2947:length(new_data$user_url)){
+for(i in 16639:21999){#length(new_data$user_url)
   remDr$navigate(new_data$user_url[i])
 
   temp <- remDr$getPageSource()[[1]] %>% read_html()
@@ -168,7 +168,7 @@ for(i in 2947:length(new_data$user_url)){
   if(i %% 100 == 0){
     remDr$close()
     remDr$open()
-    message(round(i / length(new_data$user_url), digits = 4) * 100, " % is done.")
+    message(round(i /22000, digits = 4) * 100, " % is done.") # length(new_data$user_url)
   }
   
   Sys.sleep(1.5)
@@ -176,4 +176,4 @@ for(i in 2947:length(new_data$user_url)){
 }
 all_user <- rbind(all_user,new_user)
 all_user <- all_user[!duplicated(all_user),]
-write.csv(all_user, "all_user_data_200630.csv")
+write.csv(all_user, "all_user_data_200704_server1.csv")
