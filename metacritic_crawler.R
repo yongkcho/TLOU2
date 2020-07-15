@@ -28,7 +28,7 @@ base_url <- "https://www.metacritic.com/game/playstation-4/the-last-of-us-part-i
 add_df <- NULL
 error_chk <- "There are no user reviews yet - Be first to review The Last of Us Part II."
 
-for(i in 0:400){ #number started from '0'
+for(i in 0:800){ #number started from '0'
   review_url <- paste0(base_url, i)
   remDr$navigate(review_url)
   
